@@ -25,31 +25,37 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            color: Colors.red,
+          ),
+        ),
+      ),
       home: Scaffold(
         body: Center(
           child: Column(
-            children: [
-              const Text(
-                'Click Counter',
-                style: TextStyle(
-                  fontSize: 30,
-                ),
-              ),
-              Text(
-                '$counter',
-                style: const TextStyle(
-                  fontSize: 30,
-                ),
-              ),
-              for (var n in numbers) Text('$n'),
-              IconButton(
-                iconSize: 40,
-                onPressed: onClicked,
-                icon: const Icon(Icons.add_box_rounded),
-              )
-            ],
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [MyLargeTitle()],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class MyLargeTitle extends StatelessWidget {
+  const MyLargeTitle({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'My Large Title',
+      style: TextStyle(
+        fontSize: 30,
+        color: Theme.of(context).textTheme.titleLarge?.color,
       ),
     );
   }
