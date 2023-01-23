@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toonflix_2023_01/models/webtoon_detail.dart';
 import 'package:toonflix_2023_01/models/webtoon_episode_model.dart';
 import 'package:toonflix_2023_01/services/api_service.dart';
 
 class DetailScreen extends StatefulWidget {
   final String title, thumb, id;
-  bool isLike = false;
 
-  DetailScreen({
+  const DetailScreen({
     super.key,
     required this.title,
     required this.thumb,
@@ -21,18 +21,42 @@ class DetailScreen extends StatefulWidget {
 class _DetailScreenState extends State<DetailScreen> {
   late Future<WebtoonDetailModel> webtoon;
   late Future<List<WebtoonEpisodeModel>> episodes;
+  late SharedPreferences prefs;
+  bool isLiked = false;
+
+  Future initPref() async {
+    prefs = await SharedPreferences.getInstance();
+    final likedToons = prefs.getStringList('likedToons');
+    if (likedToons != null) {
+      // likedToons 리스트에 해당 id 가 포함하는지 확인
+      if (likedToons.contains(widget.id) == true) {
+        isLiked = true;
+      }
+    } else {
+      await prefs.setStringList('likedToons', []);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     webtoon = ApiService.getToonById(widget.id);
     episodes = ApiService.getLatestEpisodesById(widget.id);
+    initPref();
   }
 
-  void onTapLike() {
-    setState(() {
-      widget.isLike = !widget.isLike;
-    });
+  void onTapLike() async {
+    // isLiked = !isLiked;
+    // prefs.setStringList('likedToons', [...prefs.getStringList('key')])
+    // final originList = prefs.getStringList('likedToons');
+    // if (isLiked) {
+    //   originList?.remove(widget.id);
+    //   // likedToons 에서 remove
+    // } else {
+    //   originList?.add(widget.id);
+    //   // likedToons 에서 add
+    // }
+    // await prefs.setStringList('likedToons', originList!);
   }
 
   @override
@@ -48,9 +72,8 @@ class _DetailScreenState extends State<DetailScreen> {
         actions: [
           IconButton(
             onPressed: onTapLike,
-            icon: Icon(widget.isLike
-                ? Icons.favorite_rounded
-                : Icons.favorite_outline),
+            icon:
+                Icon(isLiked ? Icons.favorite_rounded : Icons.favorite_outline),
           )
         ],
         backgroundColor: Colors.white,
