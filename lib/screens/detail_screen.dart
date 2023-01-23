@@ -5,8 +5,9 @@ import 'package:toonflix_2023_01/services/api_service.dart';
 
 class DetailScreen extends StatefulWidget {
   final String title, thumb, id;
+  bool isLike = false;
 
-  const DetailScreen({
+  DetailScreen({
     super.key,
     required this.title,
     required this.thumb,
@@ -26,8 +27,12 @@ class _DetailScreenState extends State<DetailScreen> {
     super.initState();
     webtoon = ApiService.getToonById(widget.id);
     episodes = ApiService.getLatestEpisodesById(widget.id);
-    print(webtoon);
-    print(episodes);
+  }
+
+  void onTapLike() {
+    setState(() {
+      widget.isLike = !widget.isLike;
+    });
   }
 
   @override
@@ -40,6 +45,14 @@ class _DetailScreenState extends State<DetailScreen> {
           widget.title,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
         ),
+        actions: [
+          IconButton(
+            onPressed: onTapLike,
+            icon: Icon(widget.isLike
+                ? Icons.favorite_rounded
+                : Icons.favorite_outline),
+          )
+        ],
         backgroundColor: Colors.white,
         foregroundColor: Colors.green,
       ),
@@ -106,11 +119,10 @@ class _DetailScreenState extends State<DetailScreen> {
               future: episodes,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  print(snapshot.data![0].title);
                   return Column(
                     children: [
                       for (var episode in snapshot.data!)
-                        EpisiodeWidget(episode: episode)
+                        EpisiodeWidget(episode: episode, webtoon_id: widget.id)
                     ],
                   );
                 }
@@ -128,49 +140,63 @@ class EpisiodeWidget extends StatelessWidget {
   const EpisiodeWidget({
     super.key,
     required this.episode,
+    required this.webtoon_id,
   });
 
   final WebtoonEpisodeModel episode;
+  final String webtoon_id;
+
+  // onButtonTap() async {
+  //   await launchUrlString("~~")
+  // webtoon id, episode id
+  // }
+
+  onButtonTap() {
+    print("$webtoon_id/${episode.id}");
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        vertical: 7,
-      ),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.green),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 20,
-            offset: const Offset(2, 2),
-            color: Colors.black.withOpacity(0.2),
-          )
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 10,
+    return GestureDetector(
+      onTap: onButtonTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+          vertical: 7,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              episode.title,
-              style: const TextStyle(
-                  color: Colors.green,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600),
-            ),
-            const Icon(
-              Icons.chevron_right,
-              color: Colors.green,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.green),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 20,
+              offset: const Offset(2, 2),
+              color: Colors.black.withOpacity(0.2),
             )
           ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                episode.title,
+                style: const TextStyle(
+                    color: Colors.green,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: Colors.green,
+              )
+            ],
+          ),
         ),
       ),
     );
